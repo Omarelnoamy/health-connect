@@ -1,0 +1,642 @@
+.profile-page {
+  padding: 70px;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f8fbfd;
+}
+
+.profile-header {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+.patient-photo {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e0e0e0;
+}
+
+.profile-header h1 {
+  margin-bottom: 8px;
+  color: #3b82f6;
+}
+
+.profile-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.profile-section h2 {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  color: #2c3e50;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.grid-three {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.profile-section ul {
+  padding-left: 20px;
+}
+
+.profile-section table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.profile-section th,
+.profile-section td {
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.contact-footer {
+  background-color: #edf5f7;
+  border-left: 4px solid #3498db;
+}
+
+.emergency-footer {
+  background-color: #eae0e0;
+  border-left: 4px solid #ea2b2b;
+}
+
+.document-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.document-list li {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.document-list a {
+  color: #1e88e5;
+  text-decoration: none;
+}
+
+.document-list a:hover {
+  text-decoration: underline;
+}
+
+.vitals-form input {
+  margin: 8px;
+  padding: 8px;
+  width: 250px;
+  display: block;
+}
+
+.vitals-buttons {
+  margin-top: 10px;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+  margin: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.edit-btn {
+  background-color: #0077cc;
+  color: white;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  color: black;
+}
+.vitals-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.vitals-form input,
+.vitals-form select {
+  margin: 8px;
+  padding: 8px;
+  width: 250px;
+  display: block;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.vitals-buttons {
+  grid-column: span 3;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+/* Medical History Section */
+.profile-section ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.profile-section ul li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.profile-section ul li strong {
+  color: #b10000; /* Medical theme red tone */
+  display: inline-block;
+  width: 200px;
+}
+/* Medical History Add/Edit Button */
+.add-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Medical History Form Styling */
+.medical-history-form {
+  margin-top: 20px;
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+}
+
+.medical-history-form label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+  color: #444;
+  font-size: 14px;
+}
+
+.medical-history-form input {
+  padding: 10px;
+  width: 100%;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.btn-group {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-group button {
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-group button:first-child {
+  background-color: #28a745; /* Save/Update */
+  color: white;
+}
+
+.btn-group button:first-child:hover {
+  background-color: #218838;
+}
+
+.btn-group button:last-child {
+  background-color: #dc3545; /* Cancel */
+  color: white;
+}
+
+.btn-group button:last-child:hover {
+  background-color: #c82333;
+}
+/* Contact Info Section */
+.contact-footer {
+  background-color: #edf5f7;
+  border-left: 4px solid #3498db;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.contact-footer h2 {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  color: #2c3e50;
+}
+
+.contact-footer p {
+  font-size: 15px;
+  margin: 8px 0;
+  color: #333;
+}
+
+.contact-footer strong {
+  color: #0077cc;
+}
+
+.contact-form input {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.contact-form .btn-group {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.contact-form .save-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.contact-form .save-btn:hover {
+  background-color: #218838;
+}
+
+.contact-form .cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.contact-form .cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.edit-btn {
+  background-color: #0077cc;
+  color: white;
+  padding: 10px 16px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #005fa3;
+}
+/* Emergency Contact Section */
+.emergency-footer {
+  background-color: #fcecec;
+  border-left: 4px solid #e74c3c;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.emergency-footer h2 {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  color: #c0392b;
+}
+
+.emergency-footer p {
+  font-size: 15px;
+  margin: 8px 0;
+  color: #333;
+}
+
+.emergency-footer strong {
+  color: #b10000;
+}
+
+.emergency-form input {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.emergency-form .btn-group {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.emergency-form .save-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.emergency-form .save-btn:hover {
+  background-color: #218838;
+}
+
+.emergency-form .cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.emergency-form .cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.edit-btn {
+  background-color: #0077cc;
+  color: white;
+  padding: 10px 16px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #005fa3;
+}
+
+/* Visit History Section */
+
+.profile-section table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.profile-section thead {
+  background-color: #eaf3fb;
+}
+
+.profile-section th {
+  padding: 14px 18px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 15px;
+  color: #2c3e50;
+  border-bottom: 2px solid #d6e4f0;
+}
+
+.profile-section td {
+  padding: 14px 18px;
+  font-size: 15px;
+  color: #444;
+  border-bottom: 1px solid #f1f1f1;
+  transition: background-color 0.3s ease;
+}
+
+.profile-section tbody tr:nth-child(even) {
+  background-color: #f9fcff;
+}
+
+.profile-section tbody tr:hover {
+  background-color: #e3f2fd;
+}
+
+.profile-section td[colspan="4"] {
+  text-align: center;
+  font-style: italic;
+  color: #999;
+  padding: 20px;
+  background-color: #fcfcfc;
+}
+
+.profile-section h2 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #0077cc;
+  border-bottom: 1px solid #dce3e9;
+  padding-bottom: 5px;
+}
+/* Visit History List Styling */
+.visit-history-form {
+  margin-top: 20px;
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.visit-history-form input {
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  background-color: #fff;
+}
+
+/* Visit History List Styling */
+.profile-section ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-section ul li {
+  padding: 12px;
+  background-color: #f9fcff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: background-color 0.2s;
+}
+
+.profile-section ul li:hover {
+  background-color: #eef6fd;
+}
+
+.profile-section ul li strong {
+  display: inline-block;
+  width: 120px;
+  color: #b10000; /* Medical red tone */
+  font-weight: 600;
+}
+
+/* Add/Edit Button */
+.add-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Button Group for Save/Cancel */
+.btn-group {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-group button {
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-group button:first-child {
+  background-color: #28a745; /* Save */
+  color: white;
+}
+
+.btn-group button:first-child:hover {
+  background-color: #218838;
+}
+
+.btn-group button:last-child {
+  background-color: #dc3545; /* Cancel */
+  color: white;
+}
+
+.btn-group button:last-child:hover {
+  background-color: #c82333;
+}
+.photo-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.photo-wrapper img {
+  width: 155px;
+  height: 155px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #90caf9; /* optional: blue border for medical look */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.camera-button {
+  position: absolute;
+  bottom: 1;
+  right: 0;
+  background-color: #1e88e5;
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(30, 136, 229, 0.4);
+  transition: background-color 0.3s;
+}
+
+.camera-button:hover {
+  background-color: #1565c0;
+}

@@ -1,0 +1,86 @@
+.layout {
+    display: flex;
+}
+
+.sidebar {
+    width: 120px;
+    /* Small width for collapsed sidebar */
+    height: 100vh;
+    background-color: #00aeff;
+    color: white;
+    transition: width 0.3s ease;
+    padding-top: 20px;
+    position: fixed;
+    z-index: 100;
+}
+
+.sidebar.expanded {
+    width: 320px;
+    /* Larger width for expanded sidebar */
+}
+
+.sidebar-logo {
+    color: white;
+    text-align: center;
+    font-size: 30px;
+    padding: 10px 15px;
+    margin: 10px auto;
+    border: 2px solid #89CFF0;
+    /* baby blue border */
+    border-radius: 10px;
+    width: fit-content;
+    background-color: #1f2d3a;
+    /* darker background to contrast with baby blue */
+    box-shadow: 0 0 10px rgba(137, 207, 240, 0.6);
+    /* baby blue glow */
+    transition: all 0.3s ease;
+}
+
+.sidebar-logo:hover {
+    box-shadow: 0 0 15px #89cff0;
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding-left: 45px;
+}
+
+.sidebar nav ul li {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.sidebar nav ul li a {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 0px;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar nav ul li a:hover {
+    background-color: #34495e;
+
+}
+
+.sidebar nav ul li a svg {
+    margin-right: 10px;
+    font-size: 1.5em;
+}
+
+/* Main content area */
+.main-content {
+    margin-left: 40px;
+    /* Ensure content does not overlap with collapsed sidebar */
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.expanded+.main-content {
+    margin-left: 250px;
+    /* Adjust the main content area when the sidebar is expanded */
+}

@@ -1,0 +1,105 @@
+.patients-container {
+  padding: 40px 30px;
+  background: linear-gradient(to bottom right, #e3f2fd, #ffffff);
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin-left: 30px;
+}
+
+.patients-container h1 {
+  text-align: center;
+  color: #1e3a8a;
+  margin-bottom: 40px;
+  font-size: 38px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.patients-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+  gap: 20px; /* spacing between cards */
+  padding: 20px;
+}
+
+.patient-card {
+  display: flex;
+  align-items: center;
+  background: #f0f9ff;
+  border: 1px solid #cfe2f3;
+  border-radius: 20px;
+  padding: 25px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.qr-code {
+  margin-left: auto;
+}
+
+.patient-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 255, 0.12);
+}
+
+.patient-card h2 {
+  margin-bottom: 12px;
+  color: #0d47a1;
+  font-size: 22px;
+}
+
+.patient-card p {
+  margin: 6px 0;
+  color: #37474f;
+  font-size: 15px;
+}
+
+.view-profile-btn {
+  display: inline-block;
+  margin-top: 20px;
+  background-color: #1e88e5;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 500;
+
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.view-profile-btn:hover {
+  background-color: #1565c0;
+  box-shadow: 0 6px 12px rgba(21, 101, 192, 0.3);
+}
+
+.patient-photo {
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.patient-photo img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #90caf9; /* optional: blue border for medical look */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* add after the rest of your Patients.css */
+.btn-row {
+  /* puts the links on one line & adds the gap */
+  display: flex;
+  gap: 20px; /*  ←  increase / decrease as you like */
+  margin-top: 20px; /* optional – pushes row away from text above */
+}
+
+/* optional: keep the “outline” version visually different */
+.view-profile-btn.outline {
+  background: #fff;
+  color: #1e88e5;
+  border: 2px solid #1e88e5;
+}

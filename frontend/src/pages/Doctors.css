@@ -1,0 +1,76 @@
+/* Doctors.css */
+
+/* Page container aligned with sidebar */
+.doctors-page {
+  margin-left: 70px;
+  padding: 60px 80px;
+  background-color: #f0f9ff; /* Soft blue background */
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header */
+.doctors-page h1 {
+  font-size: 36px;
+  color: #60a5fa; /* Light blue */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Paragraph */
+.doctors-page p {
+  font-size: 18px;
+  color: #3b82f6; /* Primary blue */
+  margin-bottom: 24px;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Button for adding a patient */
+.add-patient-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.add-patient-btn:hover {
+  background-color: #2563eb; /* darker hover blue */
+}
+
+/* Animation for smooth fade-in */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .doctors-page {
+    margin-left: 0;
+    padding: 30px 20px;
+  }
+
+  .add-patient-btn {
+    width: 100%;
+  }
+}
