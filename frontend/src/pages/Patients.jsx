@@ -3,6 +3,8 @@ import { QRCodeSVG } from "qrcode.react";
 import { Link } from "react-router-dom";
 import "./Patients.css";
 
+const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
+
 const formatDate = (dateStr) => {
   if (!dateStr) return null;
   const date = new Date(dateStr);
@@ -21,7 +23,7 @@ export default function Patients() {
   }, []);
 
   useEffect(() => {
-    fetch(`http://${lanHost}:3001/patients`)
+    fetch(`${API_BASE_URL}/patients`)
       .then((res) => res.json())
       .then(setPatients)
       .catch(console.error);
@@ -76,7 +78,7 @@ export default function Patients() {
             {/* QR code */}
             <div className="qr-code">
               <QRCodeSVG
-                value={`http://${lanHost}:3001/patients/${p.patient_id}`}
+                value={`${API_BASE_URL}/patients/${p.patient_id}`}
                 size={120}
               />
             </div>
