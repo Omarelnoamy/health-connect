@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./PatientProfile.css";
 
+const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
+
 export default function PatientProfile() {
   const host = window.location.hostname;
   const { id } = useParams();
@@ -80,12 +82,12 @@ export default function PatientProfile() {
           visitsRes,
           vitalsRes,
         ] = await Promise.all([
-          fetch(`http://localhost:3001/patients/${id}`),
-          fetch(`http://localhost:3001/patients/${id}/contact_info`),
-          fetch(`http://localhost:3001/patients/${id}/medical_history`),
-          fetch(`http://localhost:3001/patients/${id}/clinical_documents`),
-          fetch(`http://localhost:3001/patients/${id}/visits`),
-          fetch(`http://localhost:3001/patients/${id}/vitals`),
+          fetch(`${API_BASE_URL}/patients/${id}`),
+          fetch(`${API_BASE_URL}/patients/${id}/contact_info`),
+          fetch(`${API_BASE_URL}/patients/${id}/medical_history`),
+          fetch(`${API_BASE_URL}/patients/${id}/clinical_documents`),
+          fetch(`${API_BASE_URL}/patients/${id}/visits`),
+          fetch(`${API_BASE_URL}/patients/${id}/vitals`),
         ]);
 
         const safeJson = async (res, label) => {
@@ -207,7 +209,7 @@ export default function PatientProfile() {
   const handleAddMedicalHistory = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/patients/${id}/medical_history`,
+        `${API_BASE_URL}/patients/${id}/medical_history`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -240,7 +242,7 @@ export default function PatientProfile() {
   const handleVitalsSave = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/patients/${id}/vitals`,
+        `${API_BASE_URL}/patients/${id}/vitals`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -278,7 +280,7 @@ export default function PatientProfile() {
     formData.append("file", clinicalForm.file);
     try {
       const response = await fetch(
-        `http://localhost:3001/patients/${id}/clinical_documents`,
+        `${API_BASE_URL}/patients/${id}/clinical_documents`,
         {
           method: "POST",
           body: formData,
@@ -298,7 +300,7 @@ export default function PatientProfile() {
   const handleAddVisit = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/patients/${id}/visits`,
+        `${API_BASE_URL}/patients/${id}/visits`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -328,7 +330,7 @@ export default function PatientProfile() {
   const handleContactSave = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/patients/${id}/contact_info`,
+        `${API_BASE_URL}/patients/${id}/contact_info`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -365,7 +367,7 @@ export default function PatientProfile() {
 
     try {
       const res = await fetch(
-        `http://localhost:3001/patients/${patient.patient_id}/photo`,
+        `${API_BASE_URL}/patients/${patient.patient_id}/photo`,
         {
           method: "POST",
           body: formData,
@@ -396,7 +398,7 @@ export default function PatientProfile() {
         <div className="photo-wrapper">
           {patient.profile_photo_path ? (
             <img
-              src={`http://${host}:3001${patient.profile_photo_path}`}
+              src={`${API_BASE_URL}${patient.profile_photo_path}`}
               alt={`${patient.full_name}'s profile`}
             />
           ) : (
@@ -742,7 +744,7 @@ export default function PatientProfile() {
                 {formatDate(doc.upload_date)} - {doc.file_type}
                 <br />
                 <a
-                  href={`http://localhost:3001/${doc.file_path}`}
+                  href={`${API_BASE_URL}/${doc.file_path}`}
                   target="_blank"
                   rel="noreferrer"
                 >
