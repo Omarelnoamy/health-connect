@@ -1,1 +1,10 @@
-uploads/
+# Ignore contents of uploads
+uploads/**
+# Keep folders
+!uploads/.gitkeep
+!uploads/clinicaldocs/.gitkeep
+!uploads/profilephotos/.gitkeep
+
+# Ignore node_modules
+node_modules/
+
