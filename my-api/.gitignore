@@ -1,10 +1,8 @@
-# Ignore contents of uploads
+# Ignore everything inside uploads
 uploads/**
-# Keep folders
-!uploads/.gitkeep
-!uploads/clinicaldocs/.gitkeep
-!uploads/profilephotos/.gitkeep
+
+# But keep any .gitkeep files in any subfolder
+!uploads/**/.gitkeep
 
 # Ignore node_modules
 node_modules/
-
