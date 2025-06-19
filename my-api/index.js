@@ -95,12 +95,12 @@ app.use(bodyParser.json());
 
 // ✅ PostgreSQL
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "medical_app",
-  password: "postgres",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon SSL
+  },
 });
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
