@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./Patients.css";
 
 const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
+const VERCEL_URL = "https://health-connect-huqa.vercel.app";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return null;
@@ -78,7 +79,7 @@ export default function Patients() {
             {/* QR code */}
             <div className="qr-code">
               <QRCodeSVG
-                value={`${API_BASE_URL}/patients/${p.patient_id}`}
+                value={`${VERCEL_URL}/patients/${p.patient_id}`}
                 size={120}
               />
             </div>
