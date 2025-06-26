@@ -1114,6 +1114,6 @@ export default function PatientProfile() {
         )}
       </div>
     </div>
-      <PageWrapper>
+    </PageWrapper>
   );
 }
