@@ -3,7 +3,7 @@
 /* Page container aligned with sidebar */
 .doctors-page {
   margin-left: 70px;
-  padding: 60px 80px;
+  padding: 60px 60px;
   background-color: #f0f9ff; /* Soft blue background */
   min-height: 100vh;
   position: relative;
