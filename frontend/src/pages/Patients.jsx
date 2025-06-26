@@ -74,7 +74,7 @@ export default function Patients() {
               <div className="patient-photo">
                 {p.profile_photo_path ? (
                   <img
-                    src={`http://localhost:3001${p.profile_photo_path}`}
+                    src={`${API_BASE_URL}${p.profile_photo_path}`}
                     alt={p.full_name}
                   />
                 ) : (
