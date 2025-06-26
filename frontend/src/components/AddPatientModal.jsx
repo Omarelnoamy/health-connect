@@ -25,7 +25,7 @@ const AddPatientModal = ({ isOpen, onClose }) => {
     e.preventDefault(); // ✅ Prevents page reload
 
     try {
-      const response = await axios.post(`${VERCEL_URL}/patients`, form);
+      const response = await axios.post(`${API_BASE_URL}/patients`, form);
       console.log("Patient added:", response.data);
       alert("Patient added successfully!");
       onClose(); // Close modal after success
