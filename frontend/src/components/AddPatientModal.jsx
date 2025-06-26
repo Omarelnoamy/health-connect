@@ -25,6 +25,7 @@ const AddPatientModal = ({ isOpen, onClose }) => {
     e.preventDefault(); // ✅ Prevents page reload
 
     try {
+      console.log("Sending to:", `${API_BASE_URL}/patients`);
       const response = await axios.post(`${API_BASE_URL}/patients`, form);
       console.log("Patient added:", response.data);
       alert("Patient added successfully!");
