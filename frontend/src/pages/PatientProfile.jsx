@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./PatientProfile.css";
+import { useNavigate } from "react-router-dom"; // Make sure this import is present at the top
 import PageWrapper from "../components/PageWrapper";
 
 
@@ -388,6 +389,31 @@ export default function PatientProfile() {
       }
     } catch (error) {
       console.error("Upload error:", error);
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleDeletePatient = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete ${patient.full_name}?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`http://localhost:3001/patients/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete");
+      }
+
+      alert("Patient deleted successfully.");
+      navigate("/patients"); // Redirect back to patient list
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Something went wrong while deleting the patient.");
     }
   };
 
