@@ -1,60 +1,90 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 .home-container {
-    display: flex;
-    height: 100vh;
-    font-family: 'Roboto', sans-serif;
-    color: #60a5fa;
+  display: flex;
+  height: 100vh;
+  font-family: "Roboto", sans-serif;
+  color: #60a5fa;
+  flex-direction: column; /* Makes layout mobile-friendly */
 }
-
 
 /* Main content */
 .main-content {
-    flex: 1;
-    background: linear-gradient(to bottom right, #ffffff, #a4c8ff);
-    padding: 40px;
-    overflow-y: auto;
+  flex: 1;
+  background: linear-gradient(to bottom right, #ffffff, #a4c8ff);
+  padding: 40px;
 }
 
 .main-header h1 {
-    font-size: 36px;
-    color: #3b82f6;
-    margin-bottom: 10px;
+  font-size: 36px;
+  color: #3b82f6;
+  margin-bottom: 10px;
 }
 
 .main-header p {
-    font-size: 18px;
-    color: #1e3a8a;
+  font-size: 18px;
+  color: #1e3a8a;
 }
 
 /* Features section */
 .features {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
-    gap: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  gap: 20px;
+  flex-wrap: wrap; /* Allows items to wrap on smaller screens */
 }
 
 .feature-box {
-    flex: 1;
-    background: white;
-    border-left: 5px solid #60a5fa;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 57, 179, 0.61);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 1;
+  min-width: 250px;
+  background: white;
+  border-left: 5px solid #60a5fa;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 57, 179, 0.61);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(44, 66, 155, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(44, 66, 155, 0.2);
 }
 
 .feature-box h3 {
-    color: #3b82f6;
-    margin-bottom: 10px;
+  color: #3b82f6;
+  margin-bottom: 10px;
 }
 
 .feature-box p {
-    color: #1e3a8a;
+  color: #1e3a8a;
+}
+
+/* ------------------------------
+   📱 Responsive Styling
+------------------------------ */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 20px;
+  }
+
+  .main-header h1 {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .main-header p {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .feature-box {
+    width: 100%;
+  }
 }
