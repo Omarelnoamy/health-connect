@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Link } from "react-router-dom";
 import "./Patients.css";
+import PageWrapper from "../components/PageWrapper";
+
 
 const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
 const VERCEL_URL = "https://health-connect-huqa.vercel.app";
