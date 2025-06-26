@@ -1,86 +1,169 @@
 .layout {
-    display: flex;
+  display: flex;
+}
+.layout.expanded .sidebar {
+  width: 320px;
+}
+
+.layout.expanded .main-content {
+  margin-left: 60px;
 }
 
 .sidebar {
-    width: 120px;
-    /* Small width for collapsed sidebar */
-    height: 100vh;
-    background-color: #00aeff;
-    color: white;
-    transition: width 0.3s ease;
-    padding-top: 20px;
-    position: fixed;
-    z-index: 100;
+  width: 120px;
+  /* Small width for collapsed sidebar */
+  height: 100vh;
+  background-color: #00aeff;
+  color: white;
+  transition: width 0.3s ease;
+  padding-top: 20px;
+  position: fixed;
+  z-index: 100;
 }
 
 .sidebar.expanded {
-    width: 320px;
-    /* Larger width for expanded sidebar */
+  width: 320px;
+  /* Larger width for expanded sidebar */
 }
 
 .sidebar-logo {
-    color: white;
-    text-align: center;
-    font-size: 30px;
-    padding: 10px 15px;
-    margin: 10px auto;
-    border: 2px solid #89CFF0;
-    /* baby blue border */
-    border-radius: 10px;
-    width: fit-content;
-    background-color: #1f2d3a;
-    /* darker background to contrast with baby blue */
-    box-shadow: 0 0 10px rgba(137, 207, 240, 0.6);
-    /* baby blue glow */
-    transition: all 0.3s ease;
+  color: white;
+  text-align: center;
+  font-size: 25px;
+  padding: 10px 15px;
+  margin: 10px auto;
+  border: 2px solid #89cff0;
+  /* baby blue border */
+  border-radius: 10px;
+  width: fit-content;
+  background-color: #1f2d3a;
+  /* darker background to contrast with baby blue */
+  box-shadow: 0 0 10px rgba(137, 207, 240, 0.6);
+  /* baby blue glow */
+  transition: all 0.3s ease;
+}
+.sidebar-logo-img {
+  width: 80px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .sidebar-logo:hover {
-    box-shadow: 0 0 15px #89cff0;
-    transform: scale(1.05);
-    cursor: pointer;
+  box-shadow: 0 0 15px #89cff0;
+  transform: scale(1.05);
+  cursor: pointer;
 }
 
 .sidebar nav ul {
-    list-style: none;
-    padding-left: 45px;
+  list-style: none;
+  padding-left: 45px;
 }
 
 .sidebar nav ul li {
-    margin: 15px 0;
-    text-align: left;
+  margin: 15px 0;
+  text-align: left;
 }
 
 .sidebar nav ul li a {
-    text-decoration: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    padding: 10px 0px;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 10px 0px;
+  font-size: 1.1em;
+  transition: background-color 0.3s ease;
 }
 
 .sidebar nav ul li a:hover {
-    background-color: #34495e;
-
+  background-color: #34495e;
 }
 
 .sidebar nav ul li a svg {
-    margin-right: 10px;
-    font-size: 1.5em;
+  margin-right: 10px;
+  font-size: 1.5em;
 }
 
 /* Main content area */
 .main-content {
-    margin-left: 40px;
-    /* Ensure content does not overlap with collapsed sidebar */
-    padding: 20px;
-    transition: margin-left 0.3s ease;
+  margin-left: 40px;
+  /* Ensure content does not overlap with collapsed sidebar */
+  padding: 20px;
+  transition: margin-left 0.3s ease;
 }
 
-.sidebar.expanded+.main-content {
+.sidebar.expanded + .main-content {
+  margin-left: 250px;
+  /* Adjust the main content area when the sidebar is expanded */
+}
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  font-size: 28px;
+  background: #00aeff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  z-index: 200;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -200px;
+    top: 0;
+    height: 100%;
+    width: 200px;
+    transition: left 0.3s ease;
+    padding-left: 15px;
+  }
+
+  .sidebar.expanded {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .sidebar.expanded + .main-content {
+    margin-left: 200px;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar-logo {
+    font-size: 20px;
+    padding: 8px 12px;
+  }
+
+  .sidebar nav ul {
+    padding-left: 20px;
+  }
+
+  .sidebar nav ul li a {
+    font-size: 0.95em;
+    padding: 8px 0;
+  }
+
+  .sidebar nav ul li a svg {
+    font-size: 1.2em;
+  }
+}
+@media (min-width: 769px) {
+  .sidebar:hover {
+    width: 320px;
+  }
+
+  .sidebar:hover + .main-content {
     margin-left: 250px;
-    /* Adjust the main content area when the sidebar is expanded */
+  }
 }
