@@ -77,8 +77,8 @@ export default function Layout({ children }) {
                 <FaHospitalAlt /> {sidebarOpen && "Doctors"}
               </Link>
             </li>
-            <li>
-              {/*   <Link to="/pharmacists">
+           {/*   <li>
+               <Link to="/pharmacists">
                 <FaHospitalAlt /> {sidebarOpen && "Pharmacists"}
               </Link>
             </li>*/}
