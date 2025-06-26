@@ -112,7 +112,7 @@ export default function Patients() {
               {/* QR code */}
               <div className="qr-code">
                 <QRCodeSVG
-                  value={`http://localhost:3001/patients/${p.patient_id}`}
+                  value={`${VERCEL_URL}/patients/${p.patient_id}`}
                   size={120}
                 />
               </div>
