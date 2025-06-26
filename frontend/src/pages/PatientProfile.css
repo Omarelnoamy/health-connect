@@ -19,7 +19,6 @@
   height: 130px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #e0e0e0;
 }
 
 .profile-header h1 {
@@ -639,4 +638,85 @@
 
 .camera-button:hover {
   background-color: #1565c0;
+}
+
+.danger-zone {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.delete2-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+
+.delete-btn:hover {
+  background: #d9363e;
+}
+
+.delete-btn:active {
+  transform: scale(0.97);
+}
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 20px;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-header img {
+    margin-bottom: 15px;
+  }
+
+  .vitals-form {
+    grid-template-columns: 1fr; /* Single column form */
+  }
+
+  .vitals-buttons {
+    justify-content: center;
+    grid-column: 1 / -1;
+  }
+
+  .medical-history-form,
+  .visit-history-form {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-group {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .contact-form input,
+  .emergency-form input {
+    max-width: 100%;
+  }
+
+  .photo-wrapper img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .camera-button {
+    font-size: 16px;
+    padding: 6px;
+    bottom: 5px;
+    right: 5px;
+  }
+
+  .delete2-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+  }
 }
