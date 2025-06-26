@@ -78,10 +78,10 @@ export default function Layout({ children }) {
               </Link>
             </li>
             <li>
-              <Link to="/pharmacists">
+              {/*   <Link to="/pharmacists">
                 <FaHospitalAlt /> {sidebarOpen && "Pharmacists"}
               </Link>
-            </li>
+            </li>*/}
             <li>
               <Link to="/login">
                 <FaSignInAlt /> {sidebarOpen && "Login"}
