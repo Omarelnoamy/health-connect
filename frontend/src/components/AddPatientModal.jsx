@@ -3,6 +3,7 @@ import axios from "axios";
 import "./AddPatientModal.css"; // Custom styles if needed
 
 const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
+const VERCEL_URL = "https://health-connect-huqa.vercel.app";
 
 const AddPatientModal = ({ isOpen, onClose }) => {
   const [form, setForm] = useState({
@@ -24,7 +25,7 @@ const AddPatientModal = ({ isOpen, onClose }) => {
     e.preventDefault(); // ✅ Prevents page reload
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/patients`, form);
+      const response = await axios.post(`${VERCEL_URL}/patients`, form);
       console.log("Patient added:", response.data);
       alert("Patient added successfully!");
       onClose(); // Close modal after success
