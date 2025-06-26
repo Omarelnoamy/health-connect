@@ -417,7 +417,7 @@ export default function PatientProfile() {
   if (!patient) return <h2>Loading...</h2>;
 
   return (
-    <PageWrapper>
+ 
     <div className="profile-page">
       {/* Top Patient Card */}
       <div className="profile-header">
@@ -1114,6 +1114,6 @@ export default function PatientProfile() {
         )}
       </div>
     </div>
-    </PageWrapper>
+    
   );
 }
