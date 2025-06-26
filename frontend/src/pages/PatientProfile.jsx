@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./PatientProfile.css";
+import PageWrapper from "../components/PageWrapper";
+
 
 const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
 
@@ -389,9 +391,33 @@ export default function PatientProfile() {
     }
   };
 
+  const handleDeletePatient = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete ${patient.full_name}?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/patients/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete");
+      }
+
+      alert("Patient deleted successfully.");
+      navigate("/patients"); // Redirect back to patient list
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Something went wrong while deleting the patient.");
+    }
+  };
+
   if (!patient) return <h2>Loading...</h2>;
 
   return (
+    <PageWrapper>
     <div className="profile-page">
       {/* Top Patient Card */}
       <div className="profile-header">
@@ -1088,5 +1114,6 @@ export default function PatientProfile() {
         )}
       </div>
     </div>
+      <PageWrapper>
   );
 }
