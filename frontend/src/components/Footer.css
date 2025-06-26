@@ -1,0 +1,17 @@
+.footer {
+  font-family: "Roboto", sans-serif;
+  width: 100%;
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  color: #1e3a8a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.medly-logo {
+  height: 22px;
+  vertical-align: middle;
+}
