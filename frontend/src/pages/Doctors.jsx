@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import AddPatientModal from "../components/AddPatientModal";
 import "./Doctors.css"; // Import the new CSS
+import PageWrapper from "../components/PageWrapper";
+
 
 export default function Doctors() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,6 +14,7 @@ export default function Doctors() {
   };
 
   return (
+    <PageWrapper>
     <div className="doctors-page fade-in">
       <h1>Doctors Information</h1>
       <p>Here you can view and manage doctor details.</p>
@@ -25,5 +28,6 @@ export default function Doctors() {
         onSave={handleAddPatient}
       />
     </div>
+      </PageWrapper>  
   );
 }
