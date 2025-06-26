@@ -17,12 +17,13 @@
 
 .patients-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
-  gap: 20px; /* spacing between cards */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
   padding: 20px;
 }
 
 .patient-card {
+  position: relative;
   display: flex;
   align-items: center;
   background: #f0f9ff;
@@ -32,17 +33,27 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.patient-info {
-  flex: 1;
-}
-
-.qr-code {
-  margin-left: auto;
-}
-
 .patient-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 24px rgba(0, 0, 255, 0.12);
+}
+
+.patient-photo {
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.patient-photo img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.patient-info {
+  flex: 1;
 }
 
 .patient-card h2 {
@@ -57,16 +68,20 @@
   font-size: 15px;
 }
 
+.btn-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
 .view-profile-btn {
   display: inline-block;
-  margin-top: 20px;
   background-color: #1e88e5;
   color: white;
   padding: 10px 18px;
   border-radius: 10px;
   text-decoration: none;
   font-weight: 500;
-
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -75,31 +90,118 @@
   box-shadow: 0 6px 12px rgba(21, 101, 192, 0.3);
 }
 
-.patient-photo {
-  margin-right: 20px;
-  flex-shrink: 0;
-}
-
-.patient-photo img {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #90caf9; /* optional: blue border for medical look */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* add after the rest of your Patients.css */
-.btn-row {
-  /* puts the links on one line & adds the gap */
-  display: flex;
-  gap: 20px; /*  ←  increase / decrease as you like */
-  margin-top: 20px; /* optional – pushes row away from text above */
-}
-
-/* optional: keep the “outline” version visually different */
 .view-profile-btn.outline {
   background: #fff;
   color: #1e88e5;
   border: 2px solid #1e88e5;
+}
+
+.qr-code {
+  margin-left: auto;
+}
+
+/* Delete Button (Top-Right Corner) */
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* ===========================
+   MOBILE RESPONSIVENESS
+   =========================== */
+@media (max-width: 768px) {
+  .patients-container {
+    padding: 20px 15px;
+    margin-left: 0;
+  }
+
+  .patients-container h1 {
+    font-size: 28px;
+    margin-bottom: 25px;
+  }
+
+  .patients-list {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 10px;
+  }
+
+  .patient-card {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .patient-photo {
+    margin: 0 auto 15px;
+  }
+
+  .patient-photo img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .patient-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .patient-card h2 {
+    font-size: 20px;
+  }
+
+  .patient-card p {
+    font-size: 14px;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    align-items: center;
+  }
+
+  .view-profile-btn {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+  }
+
+  .qr-code {
+    margin: 20px auto 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .delete-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    top: 8px;
+    right: 8px;
+  }
 }
