@@ -12,8 +12,10 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 /// 🛠 Ensure both upload folders exist
-const clinicalDocsDir = path.join(__dirname, "uploads", "clinicaldocs");
-const profilePhotosDir = path.join(__dirname, "uploads", "profilephotos");
+// Use /tmp for Vercel serverless (read-only filesystem except /tmp)
+const uploadBaseDir = process.env.VERCEL ? "/tmp" : __dirname;
+const clinicalDocsDir = path.join(uploadBaseDir, "uploads", "clinicaldocs");
+const profilePhotosDir = path.join(uploadBaseDir, "uploads", "profilephotos");
 fs.mkdirSync(clinicalDocsDir, { recursive: true });
 fs.mkdirSync(profilePhotosDir, { recursive: true });
 
@@ -73,46 +75,102 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://10.0.113.116:3000",
-];
+  // Vercel frontend deployment
+  "https://health-connect-huqa.vercel.app",
+  // Add your Vercel deployment URLs here
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+].filter(Boolean); // Remove null/undefined values
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // Allow if origin is in allowed list or matches Vercel/Railway/Render pattern
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.includes(".vercel.app") ||
+        origin.includes(".railway.app") ||
+        origin.includes(".onrender.com") ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1")
+      ) {
         callback(null, true);
       } else {
+        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 // ✅ Body parser for JSON
 app.use(bodyParser.json());
 
-// ✅ PostgreSQL
+// ✅ PostgreSQL - Neon Database Connection
+if (!process.env.DATABASE_URL) {
+  console.error("❌ DATABASE_URL environment variable is not set!");
+  console.error(
+    "Please set DATABASE_URL in your Railway (or Vercel) environment variables."
+  );
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon SSL
-  },
+  ssl:
+    process.env.DATABASE_URL?.includes("neon.tech") ||
+    process.env.DATABASE_URL?.includes("sslmode=require")
+      ? {
+          rejectUnauthorized: false, // Required for Neon SSL
+        }
+      : false,
+  // Optimize for serverless (Vercel)
+  max: 1, // Limit connections for serverless
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
+// Test database connection on startup
+pool.on("connect", () => {
+  console.log("✅ Connected to Neon database");
+});
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+pool.on("error", (err) => {
+  console.error("❌ Unexpected error on idle database client", err);
+  process.exit(-1);
+});
+
+// Test connection
+(async () => {
+  try {
+    const client = await pool.connect();
+    console.log("✅ Database connection test successful");
+    client.release();
+  } catch (err) {
+    console.error("❌ Database connection failed:", err.message);
+    console.error(
+      "Please check your DATABASE_URL in Vercel environment variables"
+    );
+  }
+})();
+
+// Static file serving - use uploadBaseDir for Vercel compatibility
+app.use("/uploads", express.static(path.join(uploadBaseDir, "uploads")));
 
 // This line serves files in /clinicaldocs at http://localhost:3000/uploads/filename.jpg
 app.use(
   "/clinicaldocs",
-  express.static(path.join(__dirname, "uploads", "clinicaldocs"))
+  express.static(path.join(uploadBaseDir, "uploads", "clinicaldocs"))
 );
 
 app.use(
   "/profilephotos",
-  express.static(path.join(__dirname, "uploads", "profilephotos"))
+  express.static(path.join(uploadBaseDir, "uploads", "profilephotos"))
 );
 
 // Create new patient with profile photo upload
@@ -519,5 +577,11 @@ app.put("/patients/:id/visits", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(port, () => console.log(`API running on port ${port}`));
+// Export for Vercel serverless - must export as handler
+// For Vercel, we need to export the app directly
+module.exports = app;
+
+// Start the server (only for local development)
+if (require.main === module) {
+  app.listen(port, () => console.log(`API running on port ${port}`));
+}
