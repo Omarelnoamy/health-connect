@@ -63,6 +63,23 @@ function getLanIp() {
   }
   return "localhost";
 }
+// Root endpoint - health check
+app.get("/", (req, res) => {
+  res.json({
+    message: "Health Connect API is running!",
+    status: "ok",
+    endpoints: {
+      patients: "/patients",
+      patientById: "/patients/:id",
+      vitals: "/patients/:id/vitals",
+      medicalHistory: "/patients/:id/medical_history",
+      clinicalDocuments: "/patients/:id/clinical_documents",
+      contactInfo: "/patients/:id/contact_info",
+      visits: "/patients/:id/visits",
+    },
+  });
+});
+
 app.get("/server-info", (req, res) => {
   res.json({
     host: getLanIp(), // e.g. "10.0.113.116"
