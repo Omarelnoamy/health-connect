@@ -1,3 +1,17 @@
-node_modules/
+# system
+.DS_Store
+
+# env
 .env
-uploads/ # example ignore rules
+.env.local
+
+# node
+node_modules
+frontend/node_modules
+my-api/node_modules
+
+# uploads (VERY IMPORTANT for Vercel)
+my-api/uploads
+
+# archives
+*.zip

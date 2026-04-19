@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Patient {
+  patientId        Int     @id @default(autoincrement()) @map("patient_id")
+  fullName         String? @map("full_name")
+  birthDate        DateTime? @map("birth_date") @db.Date
+  gender           String?
+  nationalId       String? @unique @map("national_id")
+  nationality      String?
+  languageSpoken   String? @map("language_spoken")
+  bloodType        String? @map("blood_type")
+  profilePhotoPath String? @map("profile_photo_path")
+
+  contactInfo       ContactInfo[]
+  medicalHistory    MedicalHistory[]
+  vitals            Vital[]
+  visits            Visit[]
+  clinicalDocuments ClinicalDocument[]
+
+  @@map("patients")
+}
+
+model ContactInfo {
+  contactId         Int       @id @default(autoincrement()) @map("contact_id")
+  patientId         Int?      @map("patient_id")
+  phone             String?
+  email             String?
+  address           String?
+  emergencyName     String?   @map("emergency_name")
+  emergencyRelation String?   @map("emergency_relation")
+  emergencyPhone    String?   @map("emergency_phone")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  patient Patient? @relation(fields: [patientId], references: [patientId], onDelete: SetNull)
+
+  @@map("contact_info")
+}
+
+model MedicalHistory {
+  historyId               Int       @id @default(autoincrement()) @map("history_id")
+  patientId               Int?      @map("patient_id")
+  allergies               String?
+  currentMedications      String?   @map("current_medications")
+  pastMedicalHistory      String?   @map("past_medical_history")
+  surgicalHistory         String?   @map("surgical_history")
+  familyHistory           String?   @map("family_history")
+  immunizationRecords     String?   @map("immunization_records")
+  chronicConditions       String?   @map("chronic_conditions")
+  mentalHealthConditions  String?   @map("mental_health_conditions")
+  createdAt               DateTime  @default(now()) @map("created_at")
+
+  patient Patient? @relation(fields: [patientId], references: [patientId], onDelete: SetNull)
+
+  @@map("medical_history")
+}
+
+model Vital {
+  vitalId       Int       @id @default(autoincrement()) @map("vital_id")
+  patientId     Int?      @map("patient_id")
+  temperature   Decimal?  @map("temperature")
+  bloodPressure String?   @map("blood_pressure")
+  heartRate     Int?      @map("heart_rate")
+  heightCm      Decimal?  @map("height_cm") @db.Decimal(5, 2)
+  weightKg      Decimal?  @map("weight_kg")
+  notes         String?
+  recordedAt    DateTime  @default(now()) @map("recorded_at")
+
+  patient Patient? @relation(fields: [patientId], references: [patientId], onDelete: SetNull)
+
+  @@map("vitals")
+}
+
+model Visit {
+  visitId    Int       @id @default(autoincrement()) @map("visit_id")
+  patientId  Int?      @map("patient_id")
+  visitDate  DateTime? @map("visit_date") @db.Timestamp(6)
+  doctorName String?   @map("doctor_name")
+  reason     String?
+  diagnosis  String?
+  treatment  String?
+
+  patient Patient? @relation(fields: [patientId], references: [patientId], onDelete: SetNull)
+
+  @@map("visits")
+}
+
+model ClinicalDocument {
+  documentId   Int       @id @default(autoincrement()) @map("document_id")
+  patientId    Int?      @map("patient_id")
+  documentName String?   @map("document_name")
+  uploadDate   DateTime  @default(now()) @map("upload_date")
+  fileType     String?   @map("file_type") @db.VarChar(255)
+  filePath     String?   @map("file_path")
+
+  patient Patient? @relation(fields: [patientId], references: [patientId], onDelete: SetNull)
+
+  @@map("clinical_documents")
+}

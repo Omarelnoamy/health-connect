@@ -1,4 +1,5 @@
 import React from "react";
+import "./Pharmacists.css";
 
 function Pharmacists() {
   return (

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import "./PatientProfile.css";
-import { useNavigate } from "react-router-dom"; // Make sure this import is present at the top
-import PageWrapper from "../components/PageWrapper";
-
-
-const API_BASE_URL = "https://health-connect-api-production.up.railway.app";
+import { toApiUrl } from "../lib/apiClient";
+import { resolveFileUrl } from "../lib/urlHelpers";
 
 export default function PatientProfile() {
-  const host = window.location.hostname;
   const { id } = useParams();
 
   const { search } = useLocation();
@@ -85,12 +81,12 @@ export default function PatientProfile() {
           visitsRes,
           vitalsRes,
         ] = await Promise.all([
-          fetch(`${API_BASE_URL}/patients/${id}`),
-          fetch(`${API_BASE_URL}/patients/${id}/contact_info`),
-          fetch(`${API_BASE_URL}/patients/${id}/medical_history`),
-          fetch(`${API_BASE_URL}/patients/${id}/clinical_documents`),
-          fetch(`${API_BASE_URL}/patients/${id}/visits`),
-          fetch(`${API_BASE_URL}/patients/${id}/vitals`),
+          fetch(toApiUrl(`/patients/${id}`)),
+          fetch(toApiUrl(`/patients/${id}/contact_info`)),
+          fetch(toApiUrl(`/patients/${id}/medical_history`)),
+          fetch(toApiUrl(`/patients/${id}/clinical_documents`)),
+          fetch(toApiUrl(`/patients/${id}/visits`)),
+          fetch(toApiUrl(`/patients/${id}/vitals`)),
         ]);
 
         const safeJson = async (res, label) => {
@@ -212,7 +208,7 @@ export default function PatientProfile() {
   const handleAddMedicalHistory = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/patients/${id}/medical_history`,
+        toApiUrl(`/patients/${id}/medical_history`),
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -245,7 +241,7 @@ export default function PatientProfile() {
   const handleVitalsSave = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/patients/${id}/vitals`,
+        toApiUrl(`/patients/${id}/vitals`),
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -283,7 +279,7 @@ export default function PatientProfile() {
     formData.append("file", clinicalForm.file);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/patients/${id}/clinical_documents`,
+        toApiUrl(`/patients/${id}/clinical_documents`),
         {
           method: "POST",
           body: formData,
@@ -303,7 +299,7 @@ export default function PatientProfile() {
   const handleAddVisit = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/patients/${id}/visits`,
+        toApiUrl(`/patients/${id}/visits`),
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -333,7 +329,7 @@ export default function PatientProfile() {
   const handleContactSave = async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/patients/${id}/contact_info`,
+        toApiUrl(`/patients/${id}/contact_info`),
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -370,7 +366,7 @@ export default function PatientProfile() {
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/patients/${patient.patient_id}/photo`,
+        toApiUrl(`/patients/${patient.patient_id}/photo`),
         {
           method: "POST",
           body: formData,
@@ -392,44 +388,16 @@ export default function PatientProfile() {
     }
   };
 
-  const navigate = useNavigate();
-
-  const handleDeletePatient = async () => {
-    const confirmed = window.confirm(
-      `Are you sure you want to permanently delete ${patient.full_name}?`
-    );
-    if (!confirmed) return;
-
-    try {
-      const res = await fetch(`http://localhost:3001/patients/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete");
-      }
-
-      alert("Patient deleted successfully.");
-      navigate("/patients"); // Redirect back to patient list
-    } catch (err) {
-      console.error("Delete error:", err);
-      alert("Something went wrong while deleting the patient.");
-    }
-  };
-
-
-
   if (!patient) return <h2>Loading...</h2>;
 
   return (
-   <PageWrapper>
     <div className="profile-page">
       {/* Top Patient Card */}
       <div className="profile-header">
         <div className="photo-wrapper">
           {patient.profile_photo_path ? (
             <img
-              src={`${API_BASE_URL}${patient.profile_photo_path}`}
+              src={resolveFileUrl(patient.profile_photo_path)}
               alt={`${patient.full_name}'s profile`}
             />
           ) : (
@@ -775,7 +743,7 @@ export default function PatientProfile() {
                 {formatDate(doc.upload_date)} - {doc.file_type}
                 <br />
                 <a
-                  href={`${API_BASE_URL}/${doc.file_path}`}
+                  href={resolveFileUrl(doc.file_path)}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -1119,7 +1087,5 @@ export default function PatientProfile() {
         )}
       </div>
     </div>
-  </PageWrapper>
-    
   );
 }

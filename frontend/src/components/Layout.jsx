@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/MMP.png"; // or wherever your logo is
-
 import { Link } from "react-router-dom";
 import {
   FaHome,
@@ -8,89 +6,84 @@ import {
   FaUsers,
   FaHospitalAlt,
   FaSignInAlt,
-  FaBars,
 } from "react-icons/fa";
 import "./Layout.css";
 
+const COMPACT_QUERY = "(max-width: 767px)";
+
 export default function Layout({ children }) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [compactNav, setCompactNav] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia(COMPACT_QUERY).matches
+  );
 
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (!mobile) {
-        setSidebarOpen(false); // reset sidebar on desktop
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const mq = window.matchMedia(COMPACT_QUERY);
+    const onChange = () => setCompactNav(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  useEffect(() => {
+    if (compactNav) {
+      setSidebarOpen(false);
+    }
+  }, [compactNav]);
+
+  const showLabels = sidebarOpen && !compactNav;
 
   return (
-    <div className={`layout ${sidebarOpen ? "expanded" : ""}`}>
-      {/* Show hamburger only on mobile */}
-      {isMobile && (
-        <button className="hamburger" onClick={toggleSidebar}>
-          <FaBars />
-        </button>
-      )}
-
+    <div className="layout">
       <aside
-        className={`sidebar ${sidebarOpen ? "expanded" : ""}`}
-        onMouseEnter={() => !isMobile && setSidebarOpen(true)}
-        onMouseLeave={() => !isMobile && setSidebarOpen(false)}
+        className={`sidebar ${sidebarOpen ? "expanded" : "collapsed"}`}
+        onMouseEnter={() => {
+          if (!compactNav) setSidebarOpen(true);
+        }}
+        onMouseLeave={() => {
+          if (!compactNav) setSidebarOpen(false);
+        }}
       >
         <h2 className="sidebar-logo">
-          {sidebarOpen ? (
-            "My Medical Passport"
-          ) : (
-            <img src={logo} alt="Logo" className="sidebar-logo-img" />
-          )}
+          {showLabels ? "My Medical Passport" : "MMP"}
         </h2>
-
         <nav>
           <ul>
             <li>
               <Link to="/">
-                <FaHome /> {sidebarOpen && "Dashboard"}
+                <FaHome /> {showLabels && "Dashboard"}
               </Link>
             </li>
             <li>
               <Link to="/about">
-                <FaUserMd /> {sidebarOpen && "About Us"}
+                <FaUserMd /> {showLabels && "About Us"}
               </Link>
             </li>
             <li>
               <Link to="/patients">
-                <FaUsers /> {sidebarOpen && "Patients"}
+                <FaUsers /> {showLabels && "Patients"}
               </Link>
             </li>
             <li>
               <Link to="/doctors">
-                <FaHospitalAlt /> {sidebarOpen && "Doctors"}
+                <FaHospitalAlt /> {showLabels && "Doctors"}
               </Link>
             </li>
-           {/*   <li>
-               <Link to="/pharmacists">
-                <FaHospitalAlt /> {sidebarOpen && "Pharmacists"}
+            <li>
+              <Link to="/pharmacists">
+                <FaHospitalAlt /> {showLabels && "Pharmacists"}
               </Link>
-            </li>*/}
+            </li>
             <li>
               <Link to="/login">
-                <FaSignInAlt /> {sidebarOpen && "Login"}
+                <FaSignInAlt /> {showLabels && "Login"}
               </Link>
             </li>
           </ul>
         </nav>
       </aside>
-
       <main className="main-content">{children}</main>
     </div>
   );

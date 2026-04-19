@@ -1,60 +1,114 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { Pool } = require("pg");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const router = express.Router();
 const os = require("os");
+const { env } = require("./src/config/env");
+const repo = require("./src/db/patientRepository");
+const {
+  uploadProfilePhoto: uploadProfilePhotoFile,
+  uploadClinicalDocument: uploadClinicalDocumentFile,
+  resolveProfilePhotoUrl,
+  resolveClinicalDocumentUrl,
+} = require("./src/services/fileStorageService");
+const { mapRepoHttpError } = require("./src/lib/repoHttpError");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT || 3002);
 
 /// 🛠 Ensure both upload folders exist
-// Use /tmp for Vercel serverless (read-only filesystem except /tmp)
-const uploadBaseDir = process.env.VERCEL ? "/tmp" : __dirname;
-const clinicalDocsDir = path.join(uploadBaseDir, "uploads", "clinicaldocs");
-const profilePhotosDir = path.join(uploadBaseDir, "uploads", "profilephotos");
+const clinicalDocsDir = path.join(__dirname, "uploads", "clinicaldocs");
+const profilePhotosDir = path.join(__dirname, "uploads", "profilephotos");
 fs.mkdirSync(clinicalDocsDir, { recursive: true });
 fs.mkdirSync(profilePhotosDir, { recursive: true });
 
-// 🎯 File filter: Only allow valid image types
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Invalid file type. Only images are allowed."), false);
+// 🎯 Profile photos: any image/* plus HEIC/HEIF often sent as application/octet-stream
+const profileImageFileFilter = (req, file, cb) => {
+  const name = (file.originalname || "").toLowerCase();
+  const mime = file.mimetype || "";
+  if (mime.startsWith("image/")) {
+    return cb(null, true);
   }
+  if (
+    mime === "application/octet-stream" &&
+    /\.(heic|heif|jpe?g|png|webp|gif|bmp|tiff?)$/i.test(name)
+  ) {
+    return cb(null, true);
+  }
+  console.warn("[upload] Rejected profile photo", {
+    mimetype: mime,
+    originalname: file.originalname,
+  });
+  cb(new Error("Invalid file type. Only image files are allowed."), false);
+};
+
+// 📄 Clinical documents: PDF + images (incl. HEIC/HEIF) + common text/docs + mobile octet-stream
+const clinicalDocFileFilter = (req, file, cb) => {
+  const name = (file.originalname || "").toLowerCase();
+  const mime = file.mimetype || "";
+  if (mime === "application/pdf") return cb(null, true);
+  if (mime.startsWith("image/")) return cb(null, true);
+  if (mime === "text/plain") return cb(null, true);
+  if (mime === "application/msword") return cb(null, true);
+  if (
+    mime ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    return cb(null, true);
+  }
+  if (
+    mime === "application/octet-stream" &&
+    /\.(pdf|heic|heif|png|jpe?g|jpeg|webp|txt|doc|docx)$/i.test(name)
+  ) {
+    return cb(null, true);
+  }
+  console.warn("[upload] Rejected clinical document", {
+    mimetype: mime,
+    originalname: file.originalname,
+  });
+  cb(
+    new Error(
+      "Unsupported file type for clinical document (allowed: PDF, images including HEIC/HEIF, plain text, and Word documents)."
+    ),
+    false
+  );
 };
 
 // 📁 Multer storage for clinical documents
-const clinicalDocsStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, clinicalDocsDir); // uploads/clinicaldocs
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
+const uploadClinicalDoc = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: clinicalDocFileFilter,
 });
-const uploadClinicalDoc = multer({ storage: clinicalDocsStorage });
 
 // 📸 Multer storage for profile photos
-const profilePhotoStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, profilePhotosDir); // uploads/profilephotos
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const filename = `patient_${req.params.id}_${Date.now()}${ext}`;
-    cb(null, filename);
-  },
+const uploadProfilePhotoMiddleware = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: profileImageFileFilter,
 });
-const uploadProfilePhoto = multer({
-  storage: profilePhotoStorage,
-  fileFilter,
-});
+
+const mapPatientForResponse = async (patient) => {
+  if (!patient) return patient;
+  if (!patient.profile_photo_path) return patient;
+
+  const resolvedPhotoPath = await resolveProfilePhotoUrl(patient.profile_photo_path);
+  return {
+    ...patient,
+    profile_photo_path: resolvedPhotoPath || patient.profile_photo_path,
+  };
+};
+
+const mapClinicalDocForResponse = async (doc) => {
+  if (!doc?.file_path) return doc;
+  const resolvedPath = await resolveClinicalDocumentUrl(doc.file_path);
+  return {
+    ...doc,
+    file_path: resolvedPath || doc.file_path,
+  };
+};
 
 function getLanIp() {
   const nets = os.networkInterfaces();
@@ -63,137 +117,63 @@ function getLanIp() {
   }
   return "localhost";
 }
-// Root endpoint - health check
-app.get("/", (req, res) => {
-  res.json({
-    message: "Health Connect API is running!",
-    status: "ok",
-    endpoints: {
-      patients: "/patients",
-      patientById: "/patients/:id",
-      vitals: "/patients/:id/vitals",
-      medicalHistory: "/patients/:id/medical_history",
-      clinicalDocuments: "/patients/:id/clinical_documents",
-      contactInfo: "/patients/:id/contact_info",
-      visits: "/patients/:id/visits",
-    },
-  });
-});
-
 app.get("/server-info", (req, res) => {
   res.json({
     host: getLanIp(), // e.g. "10.0.113.116"
-    apiPort: 3001,
-    appPort: 3000,
+    apiPort: env.apiPort,
+    appPort: env.appPort,
   });
 });
-// ✅ Enable CORS
-const allowedOrigins = [
+
+app.get("/health", (_req, res) => {
+  res.json({ ok: true, service: "health-connect-api" });
+});
+// ✅ Enable CORS (merge env list + common local CRA ports for dev)
+const localDevCorsOrigins = [
   "http://localhost:3000",
+  "http://localhost:3003",
   "http://127.0.0.1:3000",
-  "http://10.0.113.116:3000",
-  // Vercel frontend deployment
-  "https://health-connect-huqa.vercel.app",
-  // Add your Vercel deployment URLs here
-  process.env.FRONTEND_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
-].filter(Boolean); // Remove null/undefined values
+  "http://127.0.0.1:3003",
+];
+const allowedOrigins = [
+  ...new Set([...localDevCorsOrigins, ...env.corsAllowedOrigins]),
+];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      // Allow if origin is in allowed list or matches Vercel/Railway/Render pattern
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.includes(".vercel.app") ||
-        origin.includes(".railway.app") ||
-        origin.includes(".onrender.com") ||
-        origin.includes("localhost") ||
-        origin.includes("127.0.0.1")
-      ) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.warn(`CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
   })
 );
 
 // ✅ Body parser for JSON
 app.use(bodyParser.json());
 
-// ✅ PostgreSQL - Neon Database Connection
-if (!process.env.DATABASE_URL) {
-  console.error("❌ DATABASE_URL environment variable is not set!");
-  console.error(
-    "Please set DATABASE_URL in your Railway (or Vercel) environment variables."
-  );
-}
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.DATABASE_URL?.includes("neon.tech") ||
-    process.env.DATABASE_URL?.includes("sslmode=require")
-      ? {
-          rejectUnauthorized: false, // Required for Neon SSL
-        }
-      : false,
-  // Optimize for serverless (Vercel)
-  max: 1, // Limit connections for serverless
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
-});
-
-// Test database connection on startup
-pool.on("connect", () => {
-  console.log("✅ Connected to Neon database");
-});
-
-pool.on("error", (err) => {
-  console.error("❌ Unexpected error on idle database client", err);
-  process.exit(-1);
-});
-
-// Test connection
-(async () => {
-  try {
-    const client = await pool.connect();
-    console.log("✅ Database connection test successful");
-    client.release();
-  } catch (err) {
-    console.error("❌ Database connection failed:", err.message);
-    console.error(
-      "Please check your DATABASE_URL in Vercel environment variables"
-    );
-  }
-})();
-
-// Static file serving - use uploadBaseDir for Vercel compatibility
-app.use("/uploads", express.static(path.join(uploadBaseDir, "uploads")));
-
-// This line serves files in /clinicaldocs at http://localhost:3000/uploads/filename.jpg
+// This line serves files in /clinicaldocs at http://localhost:3002/uploads/filename.jpg
 app.use(
   "/clinicaldocs",
-  express.static(path.join(uploadBaseDir, "uploads", "clinicaldocs"))
+  express.static(path.join(__dirname, "uploads", "clinicaldocs"))
 );
 
 app.use(
   "/profilephotos",
-  express.static(path.join(uploadBaseDir, "uploads", "profilephotos"))
+  express.static(path.join(__dirname, "uploads", "profilephotos"))
 );
 
 // Create new patient with profile photo upload
 app.post(
   "/patients",
-  uploadProfilePhoto.single("profile_photo"),
+  uploadProfilePhotoMiddleware.single("profile_photo"),
   async (req, res) => {
     const {
       full_name,
@@ -205,52 +185,70 @@ app.post(
       blood_type,
     } = req.body;
 
-    const profile_photo_path = req.file
-      ? `/uploads/profilephotos/${req.file.filename}`
-      : null;
-
     try {
-      const result = await pool.query(
-        `INSERT INTO patients (
-        full_name, birth_date, gender, national_id, 
-        nationality, language_spoken, blood_type, profile_photo_path
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *`,
-        [
-          full_name,
-          birth_date,
-          gender,
-          national_id,
-          nationality,
-          language_spoken,
-          blood_type,
-          profile_photo_path,
-        ]
-      );
-      res.status(201).json(result.rows[0]);
+      const uploaded = await uploadProfilePhotoFile({
+        file: req.file,
+        patientId: "new",
+      });
+
+      const newPatient = await repo.createPatient({
+        full_name,
+        birth_date,
+        gender,
+        national_id,
+        nationality,
+        language_spoken,
+        blood_type,
+        profile_photo_path: uploaded?.storagePath || null,
+      });
+
+      res.status(201).json(await mapPatientForResponse(newPatient));
     } catch (err) {
       console.error("Error inserting patient:", err);
-      res.status(500).json({ error: "Failed to add patient" });
+      const { status, error } = mapRepoHttpError(err, "Failed to add patient");
+      res.status(status).json({ error });
     }
   }
 );
 
 app.post(
   "/patients/:id/photo",
-  uploadProfilePhoto.single("photo"),
+  uploadProfilePhotoMiddleware.single("photo"),
   async (req, res) => {
     const patientId = req.params.id;
-    const relativePath = `/uploads/profilephotos/${req.file.filename}`;
 
     try {
-      await pool.query(
-        "UPDATE patients SET profile_photo_path = $1 WHERE patient_id = $2",
-        [relativePath, patientId]
-      );
-      res.json({ success: true, profile_photo_path: relativePath });
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const uploaded = await uploadProfilePhotoFile({
+        file: req.file,
+        patientId,
+      });
+
+      if (!uploaded?.storagePath) {
+        console.error(
+          "[POST /patients/:id/photo] No storage path after upload (check BLOB_READ_WRITE_TOKEN / Vercel Blob, or local ./uploads in dev).",
+          {
+            patientId,
+            mimetype: req.file.mimetype,
+            size: req.file.size,
+            provider: uploaded?.provider,
+          }
+        );
+        return res.status(500).json({ error: "Failed to upload profile photo" });
+      }
+
+      await repo.updatePatientPhoto(patientId, uploaded.storagePath);
+      res.json({ success: true, profile_photo_path: uploaded.url });
     } catch (error) {
       console.error("Error updating DB with profile photo path:", error);
-      res.status(500).json({ error: "Failed to update profile photo" });
+      const { status, error: msg } = mapRepoHttpError(
+        error,
+        "Failed to update profile photo"
+      );
+      res.status(status).json({ error: msg });
     }
   }
 );
@@ -258,8 +256,9 @@ app.post(
 // Get all patients
 app.get("/patients", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM patients");
-    res.json(result.rows);
+    const patients = await repo.getPatients();
+    const mappedPatients = await Promise.all(patients.map(mapPatientForResponse));
+    res.json(mappedPatients);
   } catch (err) {
     console.error("Error fetching patients:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -270,15 +269,12 @@ app.get("/patients", async (req, res) => {
 app.get("/patients/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM patients WHERE patient_id = $1",
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const patient = await repo.getPatientById(id);
+    if (!patient) {
       return res.json({}); // Return empty object instead of 404
     }
 
-    res.json(result.rows[0]);
+    res.json(await mapPatientForResponse(patient));
   } catch (error) {
     console.error("Error fetching patient info:", error);
     res.status(500).json({ error: "Failed to fetch patient info" });
@@ -290,41 +286,30 @@ app.get("/patients/:id/full", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const patientQuery = await pool.query(
-      "SELECT * FROM patients WHERE patient_id = $1",
-      [id]
-    );
-
-    if (patientQuery.rows.length === 0) {
+    const patient = await repo.getPatientById(id);
+    if (!patient) {
       return res.status(404).json({ error: "Patient not found" });
     }
 
-    const patient = patientQuery.rows[0];
-
-    const [contactInfo, clinicalDocs, medicalHistory, visits, vitals] =
+    const [contactInfo, clinicalDocs, medicalHistory, visits, latestVitals] =
       await Promise.all([
-        pool.query("SELECT * FROM contact_info WHERE patient_id = $1", [id]),
-        pool.query("SELECT * FROM clinical_documents WHERE patient_id = $1", [
-          id,
-        ]),
-        pool.query("SELECT * FROM medical_history WHERE patient_id = $1", [id]),
-        pool.query(
-          "SELECT * FROM visits WHERE patient_id = $1 ORDER BY visit_date DESC",
-          [id]
-        ),
-        pool.query(
-          "SELECT * FROM vitals WHERE patient_id = $1 ORDER BY recorded_at DESC",
-          [id]
-        ),
+        repo.getLatestContactInfo(id),
+        repo.getClinicalDocuments(id),
+        repo.getLatestMedicalHistory(id),
+        repo.getVisits(id),
+        repo.getLatestVitals(id),
       ]);
-    const latestVitals = vitals.rows[0] || null;
+
+    const mappedClinicalDocs = await Promise.all(
+      clinicalDocs.map(mapClinicalDocForResponse)
+    );
 
     res.json({
-      patient,
-      contact_info: contactInfo.rows[0] || null,
-      clinical_documents: clinicalDocs.rows,
-      medical_history: medicalHistory.rows,
-      visits: visits.rows,
+      patient: await mapPatientForResponse(patient),
+      contact_info: contactInfo || null,
+      clinical_documents: mappedClinicalDocs,
+      medical_history: medicalHistory ? [medicalHistory] : [],
+      visits,
       vitals: latestVitals,
     });
   } catch (err) {
@@ -337,14 +322,11 @@ app.get("/patients/:id/full", async (req, res) => {
 app.get("/patients/:id/vitals", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM vitals WHERE patient_id = $1 ORDER BY recorded_at DESC LIMIT 1",
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const vitals = await repo.getLatestVitals(id);
+    if (!vitals) {
       return res.json({}); // empty object
     }
-    res.json(result.rows[0]);
+    res.json(vitals);
   } catch (err) {
     console.error("Error fetching vitals:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -363,45 +345,31 @@ app.put("/patients/:id/vitals", async (req, res) => {
     notes,
   } = req.body;
 
-  const recorded_at = new Date();
-
   try {
-    const result = await pool.query(
-      `INSERT INTO vitals (
-        patient_id, temperature, blood_pressure, heart_rate, 
-        height_cm, weight_kg, notes, recorded_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *`,
-      [
-        id,
-        temperature,
-        blood_pressure,
-        heart_rate,
-        height_cm,
-        weight_kg,
-        notes,
-        recorded_at,
-      ]
-    );
-
-    res.json(result.rows[0]);
+    const savedVitals = await repo.addVitals(id, {
+      temperature,
+      blood_pressure,
+      heart_rate,
+      height_cm,
+      weight_kg,
+      notes,
+    });
+    res.json(savedVitals);
   } catch (err) {
     console.error("Error saving vitals:", err);
-    res.status(500).json({ error: "Failed to save vitals" });
+    const { status, error } = mapRepoHttpError(err, "Failed to save vitals");
+    res.status(status).json({ error });
   }
 });
 
 app.get("/patients/:id/medical_history", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM medical_history WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 1",
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const medicalHistory = await repo.getLatestMedicalHistory(id);
+    if (!medicalHistory) {
       return res.json({});
     }
-    res.json(result.rows[0]);
+    res.json(medicalHistory);
   } catch (error) {
     console.error("Error fetching medical_history:", error);
     res.status(500).json({ error: "Failed to fetch medical_history" });
@@ -423,39 +391,33 @@ app.put("/patients/:id/medical_history", async (req, res) => {
   } = req.body;
 
   try {
-    const result = await pool.query(
-      `INSERT INTO medical_history 
-      (patient_id, allergies, current_medications, past_medical_history, surgical_history, family_history, immunization_records, chronic_conditions, mental_health_conditions) 
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-      RETURNING *`,
-      [
-        id,
-        allergies,
-        current_medications,
-        past_medical_history,
-        surgical_history,
-        family_history,
-        immunization_records,
-        chronic_conditions,
-        mental_health_conditions,
-      ]
-    );
-    res.json(result.rows[0]);
+    const medicalHistory = await repo.addMedicalHistory(id, {
+      allergies,
+      current_medications,
+      past_medical_history,
+      surgical_history,
+      family_history,
+      immunization_records,
+      chronic_conditions,
+      mental_health_conditions,
+    });
+    res.json(medicalHistory);
   } catch (error) {
     console.error("Error inserting medical history:", error);
-    res.status(500).json({ error: "Failed to insert medical history" });
+    const { status, error: msg } = mapRepoHttpError(
+      error,
+      "Failed to insert medical history"
+    );
+    res.status(status).json({ error: msg });
   }
 });
 
 app.get("/patients/:id/clinical_documents", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM clinical_documents WHERE patient_id = $1 ORDER BY upload_date DESC",
-      [id]
-    );
-    // return an array, even if empty
-    return res.json(result.rows);
+    const docs = await repo.getClinicalDocuments(id);
+    const mappedDocs = await Promise.all(docs.map(mapClinicalDocForResponse));
+    return res.json(mappedDocs);
   } catch (error) {
     console.error("Error fetching clinical_documents:", error);
     res.status(500).json({ error: "Failed to fetch clinical_documents" });
@@ -467,41 +429,87 @@ app.post(
   "/patients/:id/clinical_documents",
   uploadClinicalDoc.single("file"),
   async (req, res) => {
-    const { id } = req.params;
-    const { document_name } = req.body;
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-    const filePath = path
-      .join("uploads/clinicaldocs", file.filename)
-      .replace(/\\/g, "/");
-    const newDoc = {
-      patient_id: id,
-      document_name,
-      upload_date: new Date(),
-      file_type: file.mimetype,
-      file_path: filePath,
-    };
-
+    let uploaded = null;
     try {
-      const result = await pool.query(
-        `INSERT INTO clinical_documents 
-         (patient_id, document_name, upload_date, file_type, file_path) 
-         VALUES ($1, $2, $3, $4, $5) 
-         RETURNING *`,
-        [
-          newDoc.patient_id,
-          newDoc.document_name,
-          newDoc.upload_date,
-          newDoc.file_type,
-          newDoc.file_path,
-        ]
-      );
-      res.status(201).json(result.rows[0]); // Return the inserted document
+      const { id } = req.params;
+      const { document_name } = req.body;
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      uploaded = await uploadClinicalDocumentFile({
+        file,
+        patientId: id,
+      });
+
+      if (!uploaded?.storagePath) {
+        console.error(
+          "[POST /patients/:id/clinical_documents] No storage path after upload (check BLOB_READ_WRITE_TOKEN / Vercel Blob, or local ./uploads in dev).",
+          {
+            patientId: id,
+            mimetype: file.mimetype,
+            size: file.size,
+            provider: uploaded?.provider,
+          }
+        );
+        return res.status(500).json({ error: "Failed to upload clinical document" });
+      }
+
+      const newDoc = {
+        patient_id: id,
+        document_name,
+        upload_date: new Date(),
+        file_type: file.mimetype,
+        file_path: uploaded.storagePath,
+      };
+
+      const savedDoc = await repo.addClinicalDocument(newDoc);
+      res.status(201).json(await mapClinicalDocForResponse(savedDoc));
     } catch (err) {
-      console.error("Database error inserting clinical document:", err);
-      res.status(500).json({ error: "Database error inserting document" });
+      if (uploaded?.storagePath) {
+        console.error(
+          "[POST /patients/:id/clinical_documents] File was written to disk but metadata insert failed (orphan file on disk; consider deleting or re-linking).",
+          {
+            storagePath: uploaded.storagePath,
+            patientId: req.params.id,
+            fileType: req.file?.mimetype,
+            fileTypeLength: req.file?.mimetype?.length,
+            prismaCode: err?.code,
+          }
+        );
+      }
+      console.error(
+        "[POST /patients/:id/clinical_documents] pipeline error:",
+        err?.message || err,
+        err?.meta ? { meta: err.meta } : undefined,
+        err?.stack
+      );
+      const mapped = mapRepoHttpError(
+        err,
+        "Database error inserting document"
+      );
+      const code = err && err.code;
+      const msg = String(err && err.message ? err.message : "");
+      const looksLikeDbError =
+        code === "P2002" ||
+        code === "FOREIGN_KEY_VIOLATION" ||
+        code === "INVALID_PATIENT_ID" ||
+        code === "PATIENT_NOT_FOUND" ||
+        (typeof code === "string" && code.startsWith("P")) ||
+        msg.includes("Unique constraint") ||
+        msg.includes("Foreign key constraint") ||
+        msg.includes("violates foreign key");
+
+      if (mapped.status !== 500 || looksLikeDbError) {
+        if (!res.headersSent) {
+          res.status(mapped.status).json({ error: mapped.error });
+        }
+        return;
+      }
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to upload clinical document" });
+      }
     }
   }
 );
@@ -509,14 +517,11 @@ app.post(
 app.get("/patients/:id/contact_info", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM contact_info WHERE patient_id = $1 ORDER BY created_at DESC LIMIT 1",
-      [id]
-    );
-    if (result.rows.length === 0) {
+    const contactInfo = await repo.getLatestContactInfo(id);
+    if (!contactInfo) {
       return res.json({}); // empty object
     }
-    res.json(result.rows[0]);
+    res.json(contactInfo);
   } catch (error) {
     console.error("Error fetching contact info:", error);
     res.status(500).json({ error: "Failed to fetch contact info" });
@@ -535,27 +540,23 @@ app.put("/patients/:id/contact_info", async (req, res) => {
   } = req.body;
 
   try {
-    const result = await pool.query(
-      `INSERT INTO contact_info 
-        (patient_id, phone, email, address, emergency_name, emergency_relation, emergency_phone)
-       VALUES 
-        ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING *`,
-      [
-        id,
-        phone,
-        email,
-        address,
-        emergency_name,
-        emergency_relation,
-        emergency_phone,
-      ]
-    );
+    const savedContact = await repo.addContactInfo(id, {
+      phone,
+      email,
+      address,
+      emergency_name,
+      emergency_relation,
+      emergency_phone,
+    });
 
-    res.json(result.rows[0]);
+    res.json(savedContact);
   } catch (error) {
     console.error("Error saving contact info:", error);
-    res.status(500).json({ error: "Failed to save contact info" });
+    const { status, error: msg } = mapRepoHttpError(
+      error,
+      "Failed to save contact info"
+    );
+    res.status(status).json({ error: msg });
   }
 });
 
@@ -563,11 +564,8 @@ app.put("/patients/:id/contact_info", async (req, res) => {
 app.get("/patients/:id/visits", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM visits WHERE patient_id = $1 ORDER BY visit_date DESC",
-      [id]
-    );
-    return res.json(result.rows); // array (possibly empty)
+    const visits = await repo.getVisits(id);
+    return res.json(visits);
   } catch (error) {
     console.error("Error fetching visits:", error);
     res.status(500).json({ error: "Failed to fetch visits" });
@@ -580,25 +578,55 @@ app.put("/patients/:id/visits", async (req, res) => {
   const { visit_date, doctor_name, reason, diagnosis, treatment } = req.body;
 
   try {
-    const result = await pool.query(
-      `INSERT INTO visits 
-      (patient_id, visit_date, doctor_name, reason, diagnosis, treatment)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *`,
-      [id, visit_date, doctor_name, reason, diagnosis, treatment]
-    );
-    res.json(result.rows[0]);
+    const savedVisit = await repo.addVisit(id, {
+      visit_date,
+      doctor_name,
+      reason,
+      diagnosis,
+      treatment,
+    });
+    res.json(savedVisit);
   } catch (error) {
     console.error("Error inserting visit history:", error);
-    res.status(500).json({ error: "Failed to insert visit history" });
+    const { status, error: msg } = mapRepoHttpError(
+      error,
+      "Failed to insert visit history"
+    );
+    res.status(status).json({ error: msg });
   }
 });
 
-// Export for Vercel serverless - must export as handler
-// For Vercel, we need to export the app directly
-module.exports = app;
+// Multer / upload validation errors (runs after routes that call next(err))
+app.use((err, req, res, next) => {
+  if (!err) return next();
+  const msg = String(err.message || "");
+  const isUploadReject =
+    err.name === "MulterError" ||
+    msg.includes("Invalid file type") ||
+    msg.includes("Unsupported file type for clinical document");
+  if (isUploadReject) {
+    console.error("[upload]", err.name || "Error", msg, { path: req.path });
+    return res.status(400).json({ error: msg || "Invalid upload" });
+  }
+  next(err);
+});
 
-// Start the server (only for local development)
-if (require.main === module) {
-  app.listen(port, () => console.log(`API running on port ${port}`));
-}
+app.use((err, req, res, next) => {
+  if (!err) return next();
+  console.error("[unhandled]", err?.message || err, err?.stack);
+  if (!res.headersSent) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Start the server
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`API listening on http://0.0.0.0:${PORT}`);
+  if (env.blobReadWriteToken) {
+    console.log("[storage] Vercel Blob uploads enabled.");
+  } else if (env.nodeEnv !== "production") {
+    console.log(
+      "[storage] Using local ./uploads for uploads (set BLOB_READ_WRITE_TOKEN for Blob)."
+    );
+  }
+});

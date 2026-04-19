@@ -1,8 +1,17 @@
-# Ignore everything inside uploads
-uploads/**
+# system
+.DS_Store
 
-# But keep any .gitkeep files in any subfolder
-!uploads/**/.gitkeep
+# env
+.env
+.env.local
 
-# Ignore node_modules
-node_modules/
+# node
+node_modules
+frontend/node_modules
+my-api/node_modules
+
+# uploads (VERY IMPORTANT for Vercel)
+my-api/uploads
+
+# archives
+*.zip

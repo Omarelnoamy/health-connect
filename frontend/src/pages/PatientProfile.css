@@ -19,6 +19,7 @@
   height: 130px;
   border-radius: 50%;
   object-fit: cover;
+  border: 3px solid #e0e0e0;
 }
 
 .profile-header h1 {
@@ -624,8 +625,8 @@
 
 .camera-button {
   position: absolute;
-  bottom: 1;
-  right: 0;
+  bottom: 0.35rem;
+  right: 0.35rem;
   background-color: #1e88e5;
   color: white;
   padding: 8px;
@@ -640,83 +641,198 @@
   background-color: #1565c0;
 }
 
-.danger-zone {
-  margin-top: 3rem;
-  text-align: center;
+/* Clinical document upload block */
+.clinical-doc-form {
+  margin-top: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 36rem;
 }
 
-.delete2-btn {
-  background: #ff4d4f;
-  color: #fff;
-  border: none;
-  padding: 0.8rem 2.5rem;
+.clinical-doc-form input[type="text"] {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
   font-size: 1rem;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.25s;
+  background: #fff;
 }
 
-.delete-btn:hover {
-  background: #d9363e;
+.clinical-doc-form input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  font-size: 0.9rem;
 }
 
-.delete-btn:active {
-  transform: scale(0.97);
-}
-@media (max-width: 768px) {
+/* —— Mobile premium layout (patient profile) —— */
+@media (max-width: 767px) {
   .profile-page {
-    padding: 20px;
+    padding: var(--space-page, 0.75rem);
+    background: #f1f5f9;
   }
 
   .profile-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-card, 0 1px 3px rgba(15, 23, 42, 0.08));
   }
 
-  .profile-header img {
-    margin-bottom: 15px;
+  .profile-header h1 {
+    font-size: clamp(1.2rem, 4.5vw, 1.45rem);
+    line-height: 1.25;
+  }
+
+  .photo-wrapper img {
+    width: min(140px, 40vw);
+    height: min(140px, 40vw);
+    border-width: 2px;
+  }
+
+  .camera-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 1.1rem;
+  }
+
+  .profile-section {
+    margin-bottom: 1rem;
+    padding: 1.1rem 1rem 1.25rem;
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-card, 0 1px 3px rgba(15, 23, 42, 0.08));
+  }
+
+  .profile-section h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .grid-two,
+  .grid-three {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
 
   .vitals-form {
-    grid-template-columns: 1fr; /* Single column form */
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .vitals-form input,
+  .vitals-form select {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0.65rem 0.75rem;
+    font-size: 1rem;
+    min-height: var(--tap-min, 44px);
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
   }
 
   .vitals-buttons {
-    justify-content: center;
-    grid-column: 1 / -1;
+    grid-column: 1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
   }
 
   .medical-history-form,
   .visit-history-form {
     grid-template-columns: 1fr;
+    min-width: 0;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .medical-history-form label {
+    font-size: 0.9rem;
+  }
+
+  .clinical-doc-form {
+    max-width: none;
+    padding: 1rem;
+  }
+
+  .profile-section table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+
+  .profile-section th,
+  .profile-section td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .profile-section ul li strong {
+    width: auto;
+    min-width: 0;
+    display: block;
+    margin-bottom: 0.15rem;
+    color: #0f172a;
+  }
+
+  .profile-section ul li {
+    padding: 0.85rem 0.75rem;
+    font-size: 0.9rem;
+    text-align: left;
   }
 
   .btn-group {
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .btn-group button {
+    width: 100%;
+    min-height: var(--tap-min, 44px);
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .add-btn,
+  .edit-btn,
+  .save-btn,
+  .cancel-btn {
+    min-height: var(--tap-min, 44px);
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
   }
 
   .contact-form input,
   .emergency-form input {
-    max-width: 100%;
-  }
-
-  .photo-wrapper img {
-    width: 120px;
-    height: 120px;
-  }
-
-  .camera-button {
-    font-size: 16px;
-    padding: 6px;
-    bottom: 5px;
-    right: 5px;
-  }
-
-  .delete2-btn {
-    width: 100%;
-    padding: 0.8rem 1rem;
+    max-width: none;
+    min-height: var(--tap-min, 44px);
     font-size: 1rem;
   }
+
+  .contact-footer,
+  .emergency-footer {
+    padding: 1rem;
+  }
 }
+
