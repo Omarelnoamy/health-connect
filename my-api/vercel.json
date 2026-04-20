@@ -1,11 +1,14 @@
 {
   "version": 2,
-  "functions": {
-    "index.js": {
-      "runtime": "@vercel/node",
-      "includeFiles": "node_modules/.prisma/**"
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["node_modules/.prisma/**"]
+      }
     }
-  },
+  ],
   "routes": [
     {
       "src": "/(.*)",
