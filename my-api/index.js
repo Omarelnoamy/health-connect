@@ -20,11 +20,13 @@ const { mapRepoHttpError } = require("./src/lib/repoHttpError");
 const app = express();
 const PORT = Number(process.env.PORT || 3002);
 
-/// 🛠 Ensure both upload folders exist
-const clinicalDocsDir = path.join(__dirname, "uploads", "clinicaldocs");
-const profilePhotosDir = path.join(__dirname, "uploads", "profilephotos");
-fs.mkdirSync(clinicalDocsDir, { recursive: true });
-fs.mkdirSync(profilePhotosDir, { recursive: true });
+/// 🛠 Local upload folders are needed for development fallback only.
+if (env.nodeEnv !== "production") {
+  const clinicalDocsDir = path.join(__dirname, "uploads", "clinicaldocs");
+  const profilePhotosDir = path.join(__dirname, "uploads", "profilephotos");
+  fs.mkdirSync(clinicalDocsDir, { recursive: true });
+  fs.mkdirSync(profilePhotosDir, { recursive: true });
+}
 
 // 🎯 Profile photos: any image/* plus HEIC/HEIF often sent as application/octet-stream
 const profileImageFileFilter = (req, file, cb) => {
@@ -157,18 +159,20 @@ app.use(
 // ✅ Body parser for JSON
 app.use(bodyParser.json());
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+if (env.nodeEnv !== "production") {
+  app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// This line serves files in /clinicaldocs at http://localhost:3002/uploads/filename.jpg
-app.use(
-  "/clinicaldocs",
-  express.static(path.join(__dirname, "uploads", "clinicaldocs"))
-);
+  // Dev-only static mounts for local upload fallback.
+  app.use(
+    "/clinicaldocs",
+    express.static(path.join(__dirname, "uploads", "clinicaldocs"))
+  );
 
-app.use(
-  "/profilephotos",
-  express.static(path.join(__dirname, "uploads", "profilephotos"))
-);
+  app.use(
+    "/profilephotos",
+    express.static(path.join(__dirname, "uploads", "profilephotos"))
+  );
+}
 
 // Create new patient with profile photo upload
 app.post(
