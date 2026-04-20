@@ -623,14 +623,19 @@ app.use((err, req, res, next) => {
   }
 });
 
-// Start the server
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API listening on http://0.0.0.0:${PORT}`);
-  if (env.blobReadWriteToken) {
-    console.log("[storage] Vercel Blob uploads enabled.");
-  } else if (env.nodeEnv !== "production") {
-    console.log(
-      "[storage] Using local ./uploads for uploads (set BLOB_READ_WRITE_TOKEN for Blob)."
-    );
-  }
-});
+// Export app for serverless runtimes (e.g. Vercel).
+module.exports = app;
+
+// Start local dev server only when running directly (not in Vercel serverless).
+if (!process.env.VERCEL) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`API listening on http://0.0.0.0:${PORT}`);
+    if (env.blobReadWriteToken) {
+      console.log("[storage] Vercel Blob uploads enabled.");
+    } else if (env.nodeEnv !== "production") {
+      console.log(
+        "[storage] Using local ./uploads for uploads (set BLOB_READ_WRITE_TOKEN for Blob)."
+      );
+    }
+  });
+}

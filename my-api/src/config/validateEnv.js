@@ -24,14 +24,16 @@ const validateEnv = () => {
     }
   }
 
-  if (nodeEnv === "production" && !process.env.BLOB_READ_WRITE_TOKEN) {
-    errors.push(
-      "BLOB_READ_WRITE_TOKEN is required in production for Vercel Blob uploads."
-    );
-  } else if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    warnings.push(
-      "BLOB_READ_WRITE_TOKEN is not set; uploads use local ./uploads (development only)."
-    );
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    if (nodeEnv === "production") {
+      warnings.push(
+        "BLOB_READ_WRITE_TOKEN is not set; upload endpoints will fail in production until configured."
+      );
+    } else {
+      warnings.push(
+        "BLOB_READ_WRITE_TOKEN is not set; uploads use local ./uploads (development only)."
+      );
+    }
   }
 
   if (warnings.length > 0) {
