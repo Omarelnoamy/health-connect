@@ -626,8 +626,9 @@ app.use((err, req, res, next) => {
 // Export app for serverless runtimes (e.g. Vercel).
 module.exports = app;
 
-// Start local dev server only when running directly (not in Vercel serverless).
-if (!process.env.VERCEL) {
+// Start local dev server only when this file is executed directly.
+// In serverless runtimes, this module is imported and should NOT call listen().
+if (require.main === module) {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`API listening on http://0.0.0.0:${PORT}`);
     if (env.blobReadWriteToken) {

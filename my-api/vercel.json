@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "index.js": {
+      "runtime": "@vercel/node",
+      "includeFiles": "node_modules/.prisma/**"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.js"
+    }
+  ]
+}
