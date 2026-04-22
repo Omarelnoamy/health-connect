@@ -3,7 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Link } from "react-router-dom";
 import "./Patients.css";
 import { fetchJson } from "../lib/apiClient";
-import { getApiOrigin, resolveFileUrl } from "../lib/urlHelpers";
+import { resolveFileUrl } from "../lib/urlHelpers";
 
 const formatDate = (dateStr) => {
   if (!dateStr) return null;
@@ -29,8 +29,9 @@ function useQrCodeSize() {
 
 export default function Patients() {
   const [patients, setPatients] = useState([]);
-  const apiOrigin = getApiOrigin();
   const qrSize = useQrCodeSize();
+  const appOrigin =
+    typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     fetchJson("/patients")
@@ -86,7 +87,7 @@ export default function Patients() {
             {/* QR code */}
             <div className="qr-code">
               <QRCodeSVG
-                value={`${apiOrigin}/patients/${p.patient_id}`}
+                value={`${appOrigin}/patients/${p.patient_id}?mode=view`}
                 size={qrSize}
               />
             </div>
