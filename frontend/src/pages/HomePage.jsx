@@ -7,7 +7,9 @@ export default function HomePage() {
       <div className="home-inner">
         <header className="main-header">
           <h1>Welcome to the Medical Information Bank</h1>
-          <p>Secure, reliable, and modern health data collaboration platform.</p>
+          <p>
+            Secure, reliable, and modern health data collaboration platform.
+          </p>
         </header>
 
         <section className="features">
@@ -17,7 +19,10 @@ export default function HomePage() {
           </div>
           <div className="feature-box">
             <h3>🧠 Smart Collaboration</h3>
-            <p>Doctors and pharmacists can access and share medical info smoothly.</p>
+            <p>
+              Doctors and other healthcare professionals can access and share
+              medical info smoothly.
+            </p>
           </div>
           <div className="feature-box">
             <h3>📊 Real-Time Updates</h3>
