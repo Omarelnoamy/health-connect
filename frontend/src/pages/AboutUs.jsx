@@ -21,9 +21,9 @@ export default function AboutUs() {
         <h1>About My Medical Passport</h1>
         <p>
           MMP is your trusted digital partner in healthcare. It enables doctors
-          and pharmacists to securely access vital patient information —
-          including medical history, past reservations, treatment outcomes, and
-          shared impressions from healthcare professionals.
+          and other healthcare professionals to securely access vital patient
+          information — including medical history, past reservations, treatment
+          outcomes, and shared impressions from healthcare professionals.
         </p>
         <p>
           With MMP, healthcare providers can make faster, more informed

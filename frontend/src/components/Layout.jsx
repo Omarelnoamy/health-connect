@@ -15,8 +15,7 @@ export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [compactNav, setCompactNav] = useState(
     () =>
-      typeof window !== "undefined" &&
-      window.matchMedia(COMPACT_QUERY).matches
+      typeof window !== "undefined" && window.matchMedia(COMPACT_QUERY).matches,
   );
 
   useEffect(() => {
@@ -69,11 +68,6 @@ export default function Layout({ children }) {
             <li>
               <Link to="/doctors">
                 <FaHospitalAlt /> {showLabels && "Doctors"}
-              </Link>
-            </li>
-            <li>
-              <Link to="/pharmacists">
-                <FaHospitalAlt /> {showLabels && "Pharmacists"}
               </Link>
             </li>
             <li>
