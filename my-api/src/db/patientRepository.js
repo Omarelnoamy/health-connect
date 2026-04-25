@@ -272,6 +272,33 @@ const addClinicalDocument = async (payload) => {
   }
 };
 
+/** DELETE: remove a clinical document for a patient */
+const deleteClinicalDocument = async (patientId, documentId) => {
+  const pid = parsePatientId(patientId);
+  const did = Number(documentId);
+  if (pid == null || !Number.isInteger(did) || did <= 0) {
+    const err = new Error("Invalid patient or document id");
+    err.code = "INVALID_PATIENT_ID";
+    throw err;
+  }
+
+  const existing = await prisma.clinicalDocument.findFirst({
+    where: { patientId: pid, documentId: did },
+  });
+  if (!existing) {
+    return null;
+  }
+
+  try {
+    const row = await prisma.clinicalDocument.delete({
+      where: { documentId: did },
+    });
+    return serializers.toClinicalDocumentRow(row);
+  } catch (err) {
+    handlePrismaWriteErrors(err, "deleteClinicalDocument");
+  }
+};
+
 /** READ */
 const getLatestContactInfo = async (patientId) => {
   const id = parsePatientId(patientId);
@@ -359,6 +386,7 @@ module.exports = {
   addMedicalHistory,
   getClinicalDocuments,
   addClinicalDocument,
+  deleteClinicalDocument,
   getLatestContactInfo,
   addContactInfo,
   getVisits,

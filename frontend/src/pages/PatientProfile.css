@@ -100,6 +100,21 @@
   text-decoration: underline;
 }
 
+.delete-doc-btn {
+  margin-left: 0.6rem;
+  border: 1px solid #ef4444;
+  background: #fff5f5;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.delete-doc-btn:hover {
+  background: #fee2e2;
+}
+
 .vitals-form input {
   margin: 8px;
   padding: 8px;

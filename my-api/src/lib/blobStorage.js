@@ -1,5 +1,5 @@
 const path = require("path");
-const { put } = require("@vercel/blob");
+const { put, del } = require("@vercel/blob");
 
 const sanitizeFileName = (fileName = "") =>
   fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -54,4 +54,14 @@ async function uploadBufferToBlob({
   };
 }
 
-module.exports = { uploadBufferToBlob };
+/**
+ * Best-effort delete by full blob URL.
+ */
+async function deleteBlobByUrl({ url, token }) {
+  if (!url || !token) return false;
+  if (!/^https?:\/\//i.test(String(url))) return false;
+  await del(url, { token });
+  return true;
+}
+
+module.exports = { uploadBufferToBlob, deleteBlobByUrl };

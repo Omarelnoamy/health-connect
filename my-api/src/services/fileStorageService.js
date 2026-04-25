@@ -1,6 +1,6 @@
 const { env } = require("../config/env");
 const { resolveStorageUrl, saveFileToLocalFallback } = require("../lib/storage");
-const { uploadBufferToBlob } = require("../lib/blobStorage");
+const { uploadBufferToBlob, deleteBlobByUrl } = require("../lib/blobStorage");
 
 const useBlob = () => Boolean(env.blobReadWriteToken);
 
@@ -108,9 +108,35 @@ const resolveClinicalDocumentUrl = async (storedPath) =>
     signedUrlExpiresIn: 3600,
   });
 
+const deleteClinicalDocumentFile = async (storagePath) => {
+  if (!storagePath) return false;
+  // Blob-hosted object (best effort delete)
+  if (/^https?:\/\//i.test(String(storagePath).trim())) {
+    try {
+      const deleted = await deleteBlobByUrl({
+        url: String(storagePath).trim(),
+        token: env.blobReadWriteToken,
+      });
+      if (deleted) {
+        console.info("[storage] Deleted clinical document from Vercel Blob");
+      }
+      return deleted;
+    } catch (err) {
+      console.warn(
+        "[storage] Failed to delete clinical document blob object:",
+        err?.message || err
+      );
+      return false;
+    }
+  }
+  // Local dev path: no-op (disk fallback files can be cleaned manually).
+  return false;
+};
+
 module.exports = {
   uploadProfilePhoto,
   uploadClinicalDocument,
+  deleteClinicalDocumentFile,
   resolveProfilePhotoUrl,
   resolveClinicalDocumentUrl,
 };

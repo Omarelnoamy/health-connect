@@ -296,6 +296,31 @@ export default function PatientProfile() {
     }
   };
 
+  const handleDeleteClinicalDoc = async (documentId) => {
+    if (!window.confirm("Delete this clinical document?")) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        toApiUrl(`/patients/${id}/clinical_documents/${documentId}`),
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to delete document");
+      }
+      setClinicalDocs((prev) =>
+        Array.isArray(prev)
+          ? prev.filter((doc) => Number(doc.document_id) !== Number(documentId))
+          : []
+      );
+    } catch (error) {
+      console.error("Error deleting clinical document:", error);
+      alert("Failed to delete document.");
+    }
+  };
+
   const handleAddVisit = async () => {
     try {
       const response = await fetch(
@@ -749,6 +774,15 @@ export default function PatientProfile() {
                 >
                   View Document
                 </a>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    className="delete-doc-btn"
+                    onClick={() => handleDeleteClinicalDoc(doc.document_id)}
+                  >
+                    Delete
+                  </button>
+                )}
               </li>
             ))}
           </ul>

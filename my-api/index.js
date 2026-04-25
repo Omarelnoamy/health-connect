@@ -12,6 +12,7 @@ const repo = require("./src/db/patientRepository");
 const {
   uploadProfilePhoto: uploadProfilePhotoFile,
   uploadClinicalDocument: uploadClinicalDocumentFile,
+  deleteClinicalDocumentFile,
   resolveProfilePhotoUrl,
   resolveClinicalDocumentUrl,
 } = require("./src/services/fileStorageService");
@@ -214,6 +215,36 @@ app.post(
     }
   }
 );
+
+app.delete("/patients/:id/clinical_documents/:documentId", async (req, res) => {
+  const { id, documentId } = req.params;
+  try {
+    const docs = await repo.getClinicalDocuments(id);
+    const target = docs.find((d) => Number(d.document_id) === Number(documentId));
+    if (!target) {
+      return res.status(404).json({ error: "Clinical document not found" });
+    }
+
+    const deleted = await repo.deleteClinicalDocument(id, documentId);
+    if (!deleted) {
+      return res.status(404).json({ error: "Clinical document not found" });
+    }
+
+    // Best effort: remove file from blob storage after DB row deletion.
+    if (target.file_path) {
+      await deleteClinicalDocumentFile(target.file_path);
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting clinical document:", error);
+    const { status, error: msg } = mapRepoHttpError(
+      error,
+      "Failed to delete clinical document"
+    );
+    return res.status(status).json({ error: msg });
+  }
+});
 
 app.post(
   "/patients/:id/photo",
